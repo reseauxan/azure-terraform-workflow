@@ -86,7 +86,7 @@ resource "azurerm_network_security_group" "nsg" {
 
 # Two cheap Ubuntu VMs (B1s = ~$4/month each)
 resource "azurerm_network_interface" "nic" {
-  count               = 2
+  count               = 3
   name                = "nic-vm${count.index + 1}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -99,8 +99,8 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  count                 = 2
-  name                  = "vm${count.index + 1}"
+  count                 = 3
+  name                  = "vm$count.index + 1}"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
   size                  = "Standard_B1s"      # cheapest burstable
@@ -112,7 +112,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     username   = "azureuser"
     public_key = var.ssh_public_key    # we'll use a variable
   }
-  
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
@@ -128,7 +128,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
 # Associate NSG
 resource "azurerm_network_interface_security_group_association" "nsg_assoc" {
-  count                     = 2
+  count                     = 3
   network_interface_id      = azurerm_network_interface.nic[count.index].id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
