@@ -1,3 +1,4 @@
+# .github/workflows/terraform.yml
 name: Terraform CI/CD
 
 on:
@@ -20,21 +21,21 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.9.8
 
-      - name: Azure Login (Service Principal)
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Export ARM env vars for Terraform (uses individual secrets as fallback—safe)
-      - name: Configure Terraform Azure Provider Authentication
- 
+      # ←←← THIS IS THE ONLY CHANGE THAT MATTERS →→→
+      # We DO NOT use azure/login at all → we set the ARM_* variables directly
+      - name: Configure Azure credentials (Service Principal – no CLI login)
         run: |
+          echo "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
           echo "ARM_USE_CLI=false" >> $GITHUB_ENV
+          echo "ARM_SKIP_PROVIDER_REGISTRATION=true" >> $GITHUB_ENV   # optional, speeds up init
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config="storage_account_name=YOUR_STORAGE_ACCOUNT" -backend-config="container_name=tfstate" -backend-config="key=two-vms.tfstate"
 
       - name: Terraform Format Check
         run: terraform fmt -check
@@ -44,4 +45,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve tfplans  
+        run: terraform apply -auto-approve tfplan
