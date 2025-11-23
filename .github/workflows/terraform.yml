@@ -29,11 +29,7 @@ jobs:
 
       # Export ARM env vars for Terraform (uses individual secrets as fallback—safe)
       - name: Configure Terraform Azure Provider Authentication
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+ 
         run: |
           echo "ARM_USE_CLI=false" >> $GITHUB_ENV
 
@@ -48,4 +44,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplans  
