@@ -100,7 +100,7 @@ resource "azurerm_network_interface" "nic" {
 
 resource "azurerm_linux_virtual_machine" "vm" {
   count                 = 3
-  name                  = "vm$count.index + 1}"
+  name                  = "vm${count.index + 1}"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
   size                  = "Standard_B1s"      # cheapest burstable
