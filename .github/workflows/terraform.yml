@@ -34,7 +34,7 @@ jobs:
         run: |
           terraform init \
             -backend-config="resource_group_name=tfstate-rg" \
-            -backend-config="storage_account_name=mytfstate12345" \
+            -backend-config="storage_account_name=tfstate4b0a6e" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=two-vms-behind-firewall.tfstate"
 
