@@ -48,10 +48,9 @@ resource "azurerm_firewall" "firewall" {
 
 # Route table to force all outbound traffic through the firewall
 resource "azurerm_route_table" "rt" {
-  name                          = "route-to-firewall"
-  location                      = azurerm_resource_group.rg.location
-  resource_group_name           = azurerm_resource_group.rg.name
-  disable_bgp_route_propagation = false
+  name                = "route-to-firewall"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   route {
     name                   = "default-to-firewall"
@@ -111,9 +110,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = file("~/.ssh/id_rsa.pub")    # or hardcode / use variable
+    public_key = var.ssh_public_key    # we'll use a variable
   }
-
+  
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
