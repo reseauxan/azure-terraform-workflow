@@ -10,9 +10,6 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
 
     steps:
       - name: Checkout
@@ -23,19 +20,23 @@ jobs:
         with:
           terraform_version: 1.9.8
 
-      # ←←← THIS IS THE ONLY CHANGE THAT MATTERS →→→
-      # We DO NOT use azure/login at all → we set the ARM_* variables directly
-      - name: Configure Azure credentials (Service Principal – no CLI login)
+      # Pure Service Principal auth – no azure/login, no CLI interference
+      - name: Configure Azure Service Principal (no CLI)
         run: |
           echo "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
           echo "ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
           echo "ARM_USE_CLI=false" >> $GITHUB_ENV
-          echo "ARM_SKIP_PROVIDER_REGISTRATION=true" >> $GITHUB_ENV   # optional, speeds up init
 
+      # ←←← ONLY CHANGE THIS LINE WITH YOUR REAL STORAGE ACCOUNT NAME ←←←
       - name: Terraform Init
-        run: terraform init -backend-config="storage_account_name=YOUR_STORAGE_ACCOUNT" -backend-config="container_name=tfstate" -backend-config="key=two-vms.tfstate"
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=tfstate-rg" \
+            -backend-config="storage_account_name=mytfstate12345" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=two-vms-behind-firewall.tfstate"
 
       - name: Terraform Format Check
         run: terraform fmt -check
@@ -43,6 +44,6 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -no-color -out=tfplan
 
-      - name: Terraform Apply
+      - name: Terraform Apply (only on main)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
