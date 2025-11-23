@@ -29,9 +29,11 @@ jobs:
           echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
           echo "ARM_USE_CLI=false" >> $GITHUB_ENV
 
-      - name: Inject SSH public key
+      - name: Inject SSH public key (with quotes)
         run: |
-          echo "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" >> terraform.tfvars
+          echo "ssh_public_key=\"${{ secrets.SSH_PUBLIC_KEY }}\"" > terraform.tfvars
+          echo "Terraform.tfvars created successfully:"
+          cat terraform.tfvars
 
       # ←←← ONLY CHANGE THIS LINE WITH YOUR REAL STORAGE ACCOUNT NAME ←←←
       - name: Terraform Init

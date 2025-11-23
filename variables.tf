@@ -1,5 +1,5 @@
 variable "ssh_public_key" {
-  description = "Public SSH key to inject into the VMs"
+  description = "Public SSH key for VM access"
   type        = string
-  default     = ""  # will be overridden by GitHub Actions
+  sensitive   = true
 }
